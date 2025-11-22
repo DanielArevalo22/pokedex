@@ -1,6 +1,6 @@
 import PokemonStats from "../components/PokemonStats";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Skeleton from "react-loading-skeleton";
 import { useParams, Link } from "react-router-dom";
 
 function PokemonInfo() {
@@ -22,50 +22,51 @@ function PokemonInfo() {
   }, []);
 
   return (
-    <>
-      <div className="flex">
-        <div className="w-[50%] h-screen">
-          <div className="flex">
-
-            <Link to="/pokemon/inventory">
-              <i class="fa-solid fa-2x fa-left-long ms-4 mt-8 text-black"></i>
-            </Link>
-            
-            <div className="ms-[110px] flex space-x-4 mt-9 text-white font-semibold text-xl">
-              
-              {pokeType.map((typeObj) => (
-              <p className="bg-blue-300 text-center w-[90px] rounded-xl h-[30px]"
-                key={typeObj?.type?.name} >
-                {typeObj?.type?.name}
-              </p>
-            ))}
-
-            </div>
-
-          </div>
-
-          <PokemonStats pokemon={pokemon} className=""></PokemonStats>
-        </div>
-        <div className="w-[50%] h-screen bg-cover bg-center bg-[url('/bg-resource-plant.png')]">
-          <div className="flex space-x-[50px] w-[400px] mx-auto">
-            <span className="mt-[40px] font-semibold text-[30px]">
-              {" "}
-              # {pokemon.id}
-            </span>
-            <h1 className="text-center text-4xl font-bold mt-10">
+    <div className="bg-gradient-to-br from-teal-100 via-white to-teal-200 font-sans">
+      <div className="flex flex-col lg:flex-row">
+        
+        <div className="w-[50%] bg-[url('/bg-resource-plant.png')] bg-cover bg-center relative">
+          <div className="flex flex-col items-center pt-10 space-y-4">
+            <span className="text-gray-700 font-semibold text-2xl"># {pokemon.id}</span>
+            <h1 className="text-5xl font-bold capitalize text-white drop-shadow-md">
               {pokemon.name}
             </h1>
-            <a href="">
-              <i className="fa-regular fa-heart fa-2x mt-[50px]"></i>
-            </a>
+            <div className="flex space-x-3">
+              {pokeType.map((typeObj) => (
+                <span
+                  key={typeObj?.type?.name}
+                  className="bg-green-200 text-green-800 font-semibold px-4 py-1 rounded-full shadow-sm text-sm"
+                >
+                  {typeObj?.type?.name}
+                </span>
+              ))}
+            </div>
+
+            {img ? (
+              <img src={img} alt={pokemon.name} className="w-[250px] h-[250px] mt-10 drop-shadow-xl hover:scale-105 transition-transform duration-300"/>
+            ):(
+              <Skeleton variant="rectangular" width={10} height={10}></Skeleton>
+            )}
+            <button className="absolute top-6 right-6 hover:scale-110 transition-transform">
+              <i className="fa-regular fa-heart fa-2x text-red-500"></i>
+            </button>
+          </div>
+        </div>
+
+        
+        <div className="lg:w-1/2 w-full px-6 py-10 bg-white shadow-inner relative">
+          <div className="flex items-center mb-6">
+            <Link to="/pokemon/inventory">
+              <i className="fa-solid fa-left-long fa-2x text-gray-600 hover:text-teal-600 transition-colors"></i>
+            </Link>
           </div>
 
-          <div className="flex justify-center pt-[100px]">
-            <img src={img} alt="" />
+          <div className="flex justify-center">
+            <PokemonStats pokemon={pokemon} />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const optionsTabla = [
   { id: "about", label: "About" },
@@ -6,93 +6,137 @@ const optionsTabla = [
   { id: "evolution", label: "Evolution" },
 ];
 
-const dataAbout = [
-  { id: "species", label: "Especies" },
-  { id: "height", label: "Height" },
-  { id: "weight", label: "Weight" },
-  { id: "abilities", label: "Habilities" },
-  { id: "bred", label: "Breeding" },
-  { id: "egroup", label: "Eggs Group" },
-  { id: "ecycle", label: "Eggs Cycle" },
-];
-
-const statsData = [
-  { id: "hp", label: "HP" },
-  { id: "attack", label: "Attack" },
-  { id: "defense", label: "Defense" },
-  { id: "special-attack", label: "Special Attack" },
-  { id: "special-defense", label: "Special Defense" },
-  { id: "total", label: "Total" },
-];
-
-const levels = ["1", "2", "3"];
-
-export default function PokemonStats( {pokemon}) {
+export default function PokemonStats({ pokemon }) {
   const [active, setActive] = useState("about");
-  const pokeData = {
-    height: pokemon.height,
-    weight: pokemon.weight,
-    habilities: [pokemon.abilities]
-  };
+  const [speciesData, setSpeciesData] = useState(null);
+  const [evolutionChain, setEvolutionChain] = useState([]);
+  const [stats, setStats] = useState([]);
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        
+        //PAROA LA DATA BASICA DEL POKEMON
+        const pokeRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`);
+        const pokeJson = await pokeRes.json();
+        setStats(pokeJson.stats);
+
+        // DATO DE LA ESPACIE 
+        const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemon.name}`);
+        const speciesJson = await speciesRes.json();
+        setSpeciesData(speciesJson);
+
+        // DATA DEL A EVOLUCION
+        const evoRes = await fetch(speciesJson.evolution_chain.url);
+        const evoJson = await evoRes.json();
+
+        const evoList = [];
+        function traverse(chain) {
+          evoList.push(chain.species.name);
+          chain.evolves_to.forEach(traverse);
+        }
+        traverse(evoJson.chain);
+
+        const evoWithSprites = await Promise.all(
+          evoList.map(async (name) => {
+            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+            const json = await res.json();
+            return { name, sprite: json.sprites.front_default };
+          })
+        );
+        setEvolutionChain(evoWithSprites);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchData();
+  }, [pokemon.name]);
+
+  const totalStats = stats.reduce((acc, s) => acc + s.base_stat, 0);
 
   return (
-    <div className="w-[400px] h-[500px] shadow-md bg-[#cfcfcf] rounded-xl ms-[100px] mt-[40px]">
-      <ul className="flex justify-center space-x-6 relative pb-2 pt-5">
+    <div className="w-[400px] h-[450px] shadow-lg bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-2xl ms-[100px] mt-[20px] border border-gray-200">
+      <ul className="flex justify-center space-x-8 relative pb-3 pt-2">
         {optionsTabla.map((tab) => (
           <li
             key={tab.id}
-            className="cursor-pointer text-gray-700 font-semibold relative"
-            onClick={() => {
-              setActive(tab.id);
-            }}
+            className={`cursor-pointer font-semibold relative transition-colors duration-300 ${
+              active === tab.id ? "text-indigo-600" : "text-gray-600 hover:text-indigo-400"
+            }`}
+            onClick={() => setActive(tab.id)}
           >
             {tab.label}
-
             {active === tab.id && (
-              <span className="absolute left-0 right-0 h-[3px] bg-gray-400 rounded-full bottom-[-6px] transition-all duration-300"></span>
+              <span className="absolute left-0 right-0 h-[3px] bg-indigo-500 rounded-full bottom-[-6px] transition-all duration-300"></span>
             )}
           </li>
         ))}
       </ul>
 
-      <ul className="ms-2 pt-4 space-y-5">
-        {active === "about" &&
-          dataAbout.map((data) => (
-            <li
-              key={data.id}
-              className={
-                data.label === "Breeding"
-                  ? "font-bold text-[#333333] text-[25px] mt-4"
-                  : "flex ms-2 space-x-10 justify-between items"
-              }
-            >
-              <span>{data.label}</span>
-              {data.label === "Breeding" ? null : (
-                <>
-                <span className="w-[50px] ms-auto me-5">{data.label === "Height" ? pokeData.height:""}</span>
-                <span className="w-[50px] ms-auto me-5">{data.label === "Weight" ? pokeData.weight:""}</span>
-                </>
-              )}
+      <ul className="px-6 pt-4 space-y-4 overflow-y-auto max-h-[330px] scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-transparent">
+        {active === "about" && speciesData && (
+          <>
+            <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+              <span className="font-medium">Species</span>
+              <span className="bg-white rounded-md px-2 py-1 shadow-sm">
+                {speciesData.genera[0]?.genus}
+              </span>
             </li>
-          ))}
+            <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+              <span className="font-medium">Height</span>
+              <span className="bg-white rounded-md px-2 py-1 shadow-sm">{pokemon.height}</span>
+            </li>
+            <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+              <span className="font-medium">Weight</span>
+              <span className="bg-white rounded-md px-2 py-1 shadow-sm">{pokemon.weight}</span>
+            </li>
+            <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+              <span className="font-medium">Abilities</span>
+              <span className="bg-white rounded-md px-2 py-1 shadow-sm">
+                {pokemon.abilities.map((a) => a.ability.name).join(", ")}
+              </span>
+            </li>
+            <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+              <span className="font-medium">Egg Groups</span>
+              <span className="bg-white rounded-md px-2 py-1 shadow-sm">
+                {speciesData.egg_groups.map((e) => e.name).join(", ")}
+              </span>
+            </li>
+            <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+              <span className="font-medium">Egg Cycle</span>
+              <span className="bg-white rounded-md px-2 py-1 shadow-sm">
+                {speciesData.hatch_counter}
+              </span>
+            </li>
+          </>
+        )}
 
         {active === "base" &&
-          statsData.map((stat) => (
-            <li
-              key={stat.id}
-              className="flex ms-2 space-x-10 mt-5 justify-between items-center"
-            >
-              <span className="">{stat.label}</span>
-              <span className="pe-[50px] me-3"> 100 </span>
+          stats.map((s) => (
+            <li key={s.stat.name} className="grid grid-cols-2 gap-4 items-center text-gray-700">
+              <span className="font-medium capitalize">{s.stat.name}</span>
+              <span className="text-center bg-indigo-50 text-indigo-600 font-semibold rounded-md px-3 py-1 shadow-sm">
+                {s.base_stat}
+              </span>
             </li>
           ))}
+        {active === "base" && (
+          <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+            <span className="font-medium">Total</span>
+            <span className="text-center bg-indigo-50 text-indigo-600 font-semibold rounded-md px-3 py-1 shadow-sm">
+              {totalStats}
+            </span>
+          </li>
+        )}
 
         {active === "evolution" &&
-          levels.map((level) => (
-            <li key={level.id} className="w-[150px] mx-auto text-center">
-              <span>Bulbasur</span>
-              <img src="" alt="pokeimagen" />
+          evolutionChain.map((evo) => (
+            <li
+              key={evo.name}
+              className="w-full flex items-center justify-between bg-white rounded-lg shadow-md px-4 py-2 hover:scale-[1.02] transition-transform duration-300"
+            >
+              <span className="font-semibold text-gray-700 capitalize">{evo.name}</span>
+              <img src={evo.sprite} alt={evo.name} className="w-[60px] h-[60px]" />
             </li>
           ))}
       </ul>

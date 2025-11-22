@@ -1,19 +1,14 @@
-// ...existing code...
 import { Link } from "react-router-dom";
 import FilterOptions from "../components/FilterOptions";
 import PokemonCard from "../components/PokemonCard";
+import Pagination from "../components/Pagination";
 import { useEffect, useState } from "react";
 
 function PokemonList() {
-
-  const [pokemons, setPokemons] = useState([])
-
-  const api = async () => {
-      const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=50");
-      const data = await response.json();
-      setPokemons(data.results || []);
-   
-  }
+  const [pokemons, setPokemons] = useState([]);
+  const [nextUrl, setNextUrl] = useState(null);
+  const [prevUrl, setPrevUrl] = useState(null);
+  const [currentUrl, setCurrentUrl] = useState("https://pokeapi.co/api/v2/pokemon?limit=50");
 
   const [filter, setFilter] = useState(false);
 
@@ -22,10 +17,39 @@ function PokemonList() {
     console.log("filter toggled ->", !filter);
   };
 
-  useEffect( () => {
-    api();
-  }, [])
+  const api = async (url) => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
 
+      let list = [];
+
+      if (data.results) {
+        list = data.results;
+        setNextUrl(data.next);
+        setPrevUrl(data.previous);
+      } else if (data.pokemon) {
+        list = data.pokemon.map((p) => p.pokemon);
+        setNextUrl(null);
+        setPrevUrl(null);
+      } else if (data.pokemon_species) {
+        list = data.pokemon_species.map((p) => ({
+          name: p.name,
+          url: `https://pokeapi.co/api/v2/pokemon/${p.name}`,
+        }));
+        setNextUrl(null);
+        setPrevUrl(null);
+      }
+      setPokemons(list);
+    } catch (err) {
+      console.error("Error fetching pokemons:", err);
+    }
+  };
+
+
+  useEffect(() => {
+    api(currentUrl);
+  }, [currentUrl]);
 
   return (
     <>
@@ -41,18 +65,21 @@ function PokemonList() {
       </div>
 
       {filter && (
-        <FilterOptions className=""></FilterOptions>
+        <FilterOptions
+          onFilter={(url) => {
+            setCurrentUrl(url);
+          }}
+        />
       )}
-
-      
 
       <div className="grid grid-cols-5 content-between gap-4 ms-1.5 mt-5">
         {pokemons.map((pokemon, idx) => (
-          
-          // si espera name/url cambia aquí a: name={pokemon.name} urlPokemon={pokemon.url}
           <PokemonCard key={pokemon.name ?? idx} pokemonData={pokemon} />
         ))}
       </div>
+
+      <Pagination next={nextUrl} prev={prevUrl} onPageChange={(url) => setCurrentUrl(url)} />
+
     </>
   );
 }

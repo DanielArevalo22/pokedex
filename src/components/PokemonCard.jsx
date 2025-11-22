@@ -11,8 +11,26 @@ export default function PokemonCard({ pokemonData }) {
   const typeBg = {
     grass: "/bg-resource-plant.png",
     fire: "/bg-resource-fire.png",
-    water: "/bg-resource-dark.png",
+    water: "/bg-resource-water.png",
+    electric: "/bg-resource-electric.png",
+    dark:"/bg-resource-dark.png",
+    bug:"/bg-resource-bug.png",
+    normal:"/bg-resource-normal.png",
+    ground:"/bg-resource-ground.png",
     default: "/bg-resource-plant.png",
+  };
+
+  const bgColorType = {
+    grass: "#0ee6b7",
+    fire: "#f26c05",
+    water: "#5d89e8",
+    electric: "#e0ed66",
+    dark:"#6a0396",
+    bug:"#996f45",
+    normal:"#7d7b79",
+    ground:"#593715",
+    poison:"#A33EA1",
+    default: "#525252",
   };
 
   const api = async () => {
@@ -25,6 +43,8 @@ export default function PokemonCard({ pokemonData }) {
 
   const primaryType = pokeType[0]?.type?.name;
   const bgUrl = typeBg[primaryType] || typeBg.default;
+  const bgTypeStyle = bgColorType[primaryType] || bgColorType;
+  
 
   useEffect(() => {
     api();
@@ -43,12 +63,12 @@ export default function PokemonCard({ pokemonData }) {
           <div className="w-[90px] space-y-2 mt-3 ms-2">
             {pokeType.map((type, key) => {
               return (
-                <p
-                  key={key}
-                  className="bg-[#60ecdc] text-white text-center w-[70px] rounded-3xl"
+                <div
+                  className={`text-white text-center w-[70px] rounded-3xl`}
+                  style={{ backgroundColor: bgTypeStyle }}
                 >
                   {type.type.name}
-                </p>
+                </div>
               );
             })}
           </div>

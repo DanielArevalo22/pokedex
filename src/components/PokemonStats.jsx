@@ -55,7 +55,7 @@ export default function PokemonStats({ pokemon }) {
   const totalStats = stats.reduce((acc, s) => acc + s.base_stat, 0);
 
   return (
-    <div className="w-[400px] h-[450px] shadow-lg bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-2xl ms-[100px] mt-[20px] border border-gray-200">
+    <div className="w-[400px] h-[490px] shadow-lg bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-2xl ms-[100px] mt-[20px] border border-gray-200">
       <ul className="flex justify-center space-x-8 relative pb-3 pt-2">
         {optionsTabla.map((tab) => (
           <li
@@ -73,7 +73,7 @@ export default function PokemonStats({ pokemon }) {
         ))}
       </ul>
 
-      <ul className="px-6 pt-4 space-y-4 overflow-y-auto max-h-[330px] scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-transparent">
+      <ul className="px-6 pt-4 space-y-4 overflow-y-auto max-h-[330px]">
         {active === "about" && speciesData && (
           <>
             <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
@@ -121,7 +121,7 @@ export default function PokemonStats({ pokemon }) {
             </li>
           ))}
         {active === "base" && (
-          <li className="grid grid-cols-2 gap-4 items-center text-gray-700">
+          <li className="grid grid-cols-2 gap-4 items-center text-gray-700 h-[100%]">
             <span className="font-medium">Total</span>
             <span className="text-center bg-indigo-50 text-indigo-600 font-semibold rounded-md px-3 py-1 shadow-sm">
               {totalStats}

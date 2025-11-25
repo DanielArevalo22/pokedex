@@ -1,4 +1,6 @@
-const handleTypeChange = (e) => {
+function FilterOptions({ onFilter }) {
+
+  const handleTypeChange = (e) => {
   const value = e.target.value;
   if (value === "all") {
     onFilter("https://pokeapi.co/api/v2/pokemon?limit=50");
@@ -25,8 +27,6 @@ const handleColorChange = (e) => {
   }
 };
 
-
-function FilterOptions({ onFilter }) {
 
   return (
     <div className="flex space-x-5 mt-2 ms-5 mb-5">

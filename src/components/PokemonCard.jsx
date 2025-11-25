@@ -65,6 +65,7 @@ export default function PokemonCard({ pokemonData }) {
               return (
                 <div
                   className={`text-white text-center w-[70px] rounded-3xl`}
+                  key={key}
                   style={{ backgroundColor: bgTypeStyle }}
                 >
                   {type.type.name}

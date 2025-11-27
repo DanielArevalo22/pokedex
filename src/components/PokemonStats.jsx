@@ -6,7 +6,7 @@ const optionsTabla = [
   { id: "evolution", label: "Evolution" },
 ];
 
-export default function PokemonStats({ pokemon }) {
+export default function PokemonStats({ pokemon, onSendStats}) {
   const [active, setActive] = useState("about");
   const [speciesData, setSpeciesData] = useState(null);
   const [evolutionChain, setEvolutionChain] = useState([]);
@@ -52,8 +52,11 @@ export default function PokemonStats({ pokemon }) {
     fetchData();
   }, [pokemon.name]);
 
+  useEffect( () => {
+    onSendStats(stats);
+  }, [stats]);
+  
   const totalStats = stats.reduce((acc, s) => acc + s.base_stat, 0);
-
   return (
     <div className="w-[400px] h-[490px] shadow-lg bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-2xl ms-[100px] mt-[20px] border border-gray-200">
       <ul className="flex justify-center space-x-8 relative pb-3 pt-2">
@@ -120,6 +123,7 @@ export default function PokemonStats({ pokemon }) {
               </span>
             </li>
           ))}
+
         {active === "base" && (
           <li className="grid grid-cols-2 gap-4 items-center text-gray-700 h-[100%]">
             <span className="font-medium">Total</span>

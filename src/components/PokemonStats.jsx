@@ -52,10 +52,7 @@ export default function PokemonStats({ pokemon, onSendStats}) {
     fetchData();
   }, [pokemon.name]);
 
-  useEffect( () => {
-    onSendStats(stats);
-  }, [stats]);
-  
+
   const totalStats = stats.reduce((acc, s) => acc + s.base_stat, 0);
   return (
     <div className="w-[400px] h-[490px] shadow-lg bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-2xl ms-[100px] mt-[20px] border border-gray-200">

@@ -19,6 +19,7 @@ function PokemonList() {
 
   const api = async (url) => {
     try {
+
       const response = await fetch(url);
       const data = await response.json();
 
@@ -33,14 +34,18 @@ function PokemonList() {
         setNextUrl(null);
         setPrevUrl(null);
       } else if (data.pokemon_species) {
+
         list = data.pokemon_species.map((p) => ({
           name: p.name,
           url: `https://pokeapi.co/api/v2/pokemon/${p.name}`,
         }));
+        
         setNextUrl(null);
         setPrevUrl(null);
+
       }
       setPokemons(list);
+
     } catch (err) {
       console.error("Error fetching pokemons:", err);
     }

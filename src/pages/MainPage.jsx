@@ -35,7 +35,7 @@ function MainPage() {
         <div className="mx-auto w-[300px] mt-2">
           <Link className="inline-block bg-[#0b9df1] w-[300px] h-[50px] text-xl text-center pt-2.5 rounded-xl text-white font-semibold
                         hover:bg-[#077ec4] hover:text-[#f7f200] hover:font-bold transition duration-500" 
-                to="/pokemon/inventory">
+                to="/login">
             Pokedex completa
           </Link>
         </div>
